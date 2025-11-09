@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = 'http://192.168.15.9:8090/api';
+const API_URL = 'http://192.168.0.11:8090/api';
 
 const api = axios.create({
     baseURL: API_URL,

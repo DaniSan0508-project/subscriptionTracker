@@ -13,14 +13,16 @@ const StyledInput: React.FC<StyledInputProps> = (props) => {
 
 const styles = StyleSheet.create({
   input: {
-    padding: theme.components.input.padding,
+    paddingVertical: theme.components.input.padding,
+    paddingHorizontal: theme.components.input.padding,
     borderColor: theme.colors.border,
     borderWidth: theme.components.input.borderWidth,
     borderRadius: theme.components.input.borderRadius,
     fontSize: theme.typography.body.fontSize,
     color: theme.colors.text,
-    width: '90%',
-    marginBottom: 10,
+    backgroundColor: theme.colors.surface,
+    width: '100%',
+    marginBottom: theme.spacing.m,
   },
 });
 

@@ -11,7 +11,12 @@ interface StyledButtonProps {
 
 const StyledButton: React.FC<StyledButtonProps> = ({ title, onPress, isLoading = false, style }) => {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress} disabled={isLoading}>
+    <TouchableOpacity 
+      style={[styles.button, style]} 
+      onPress={onPress} 
+      disabled={isLoading}
+      activeOpacity={0.7}
+    >
       {isLoading ? (
         <ActivityIndicator size="small" color={theme.colors.white} />
       ) : (
@@ -24,11 +29,12 @@ const StyledButton: React.FC<StyledButtonProps> = ({ title, onPress, isLoading =
 const styles = StyleSheet.create({
   button: {
     backgroundColor: theme.colors.primary,
-    padding: theme.components.button.padding,
+    paddingVertical: theme.components.button.paddingVertical,
+    paddingHorizontal: theme.components.button.paddingHorizontal,
     borderRadius: theme.components.button.borderRadius,
     alignItems: 'center',
-    width: '90%',
-    marginBottom: 10,
+    width: '100%',
+    marginBottom: theme.spacing.m,
   },
   buttonText: {
     color: theme.colors.white,

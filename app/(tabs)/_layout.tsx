@@ -1,15 +1,16 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
-import { theme } from '../../src/theme/theme'; // Importe nosso tema
+import { theme } from '../../src/theme/theme';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, View } from 'react-native';
 
 // Helper para o ícone
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  name: React.ComponentProps<typeof MaterialIcons>['name'];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <MaterialIcons size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -18,37 +19,44 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary, // Use a cor do nosso tema
+        tabBarActiveTintColor: theme.colors.primary,
+        headerStyle: {
+          backgroundColor: theme.colors.surface,
+        },
+        headerTintColor: theme.colors.text,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
+        },
       }}>
-      
+
       {/* ABA 1: DASHBOARD */}
       <Tabs.Screen
-        name="index" // app/(tabs)/index.tsx
+        name="index"
         options={{
-          title: 'Dashboard',
-          headerShown: false, // Vamos esconder o header duplicado
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-        }}
-      />
-      
-      {/* ABA 2: PERFIL */}
-      <Tabs.Screen
-        name="profile" // app/(tabs)/profile.tsx
-        options={{
-          title: 'Perfil',
+          title: 'Assinaturas',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="receipt" color={color} />,
+          headerRight: () => (
+            <Pressable onPress={() => {}}>
+              <View style={{ marginRight: 15 }}>
+                <MaterialIcons name="notifications" size={24} color={theme.colors.text} />
+              </View>
+            </Pressable>
+          ),
         }}
       />
 
-      {/* Rota oculta para a tela de Adicionar (sem aba) */}
+      {/* ABA 2: PERFIL */}
       <Tabs.Screen
-        name="addSubscription" // app/(tabs)/addSubscription.tsx
+        name="profile"
         options={{
-          // Esconde esta rota da barra de abas
-          href: null,
-          title: 'Adicionar Assinatura',
-          headerShown: true, // Mostra o header
+          title: 'Perfil',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
         }}
       />
     </Tabs>
