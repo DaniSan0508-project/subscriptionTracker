@@ -59,6 +59,34 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
         }}
       />
+
+      {/* Rotas ocultas (sem abas) */}
+      <Tabs.Screen
+        name="addSubscription"
+        options={{
+          href: null,
+          title: 'Adicionar Assinatura',
+          headerShown: true,
+        }}
+      />
+      
+      <Tabs.Screen
+        name="editSubscription"
+        options={{
+          href: null,
+          title: 'Editar Assinatura',
+          headerShown: true,
+        }}
+      />
+      
+      <Tabs.Screen
+        name="subscription/[id]"
+        options={{
+          href: null,
+          title: 'Detalhes',
+          headerShown: true,
+        }}
+      />
     </Tabs>
   );
 }

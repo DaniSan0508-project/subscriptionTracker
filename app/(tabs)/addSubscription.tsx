@@ -57,80 +57,82 @@ export default function AddSubscriptionScreen() {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <View style={styles.header}>
-                <MaterialIcons name="add-circle" size={24} color={theme.colors.primary} />
-                <Text style={styles.title}>Nova Assinatura</Text>
-            </View>
-
-            <View style={styles.form}>
-                <StyledInput
-                    value={serviceName}
-                    onChangeText={setServiceName}
-                    placeholder="Nome do serviço (ex: Netflix)"
-                    placeholderTextColor={theme.colors.textSecondary}
-                />
-
-                <StyledInput
-                    value={price}
-                    onChangeText={setPrice}
-                    placeholder="Preço (ex: 29.90)"
-                    keyboardType="decimal-pad"
-                    placeholderTextColor={theme.colors.textSecondary}
-                />
-
-                <StyledInput
-                    value={renewalDate}
-                    onChangeText={setRenewalDate}
-                    placeholder="Data de Renovação (AAAA-MM-DD)"
-                    placeholderTextColor={theme.colors.textSecondary}
-                />
-
-                <View style={styles.row}>
-                    <View style={styles.halfInput}>
-                        <StyledInput
-                            value={renewalPeriodValue}
-                            onChangeText={setRenewalPeriodValue}
-                            placeholder="Período"
-                            keyboardType="numeric"
-                            placeholderTextColor={theme.colors.textSecondary}
-                        />
-                    </View>
-                    <View style={styles.halfInput}>
-                        <StyledInput
-                            value={renewalPeriodUnit}
-                            onChangeText={setRenewalPeriodUnit}
-                            placeholder="Unidade (ex: month)"
-                            placeholderTextColor={theme.colors.textSecondary}
-                        />
-                    </View>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+            <View style={styles.contentWrapper}>
+                <View style={styles.header}>
+                    <MaterialIcons name="add-circle" size={24} color={theme.colors.primary} />
+                    <Text style={styles.title}>Nova Assinatura</Text>
                 </View>
 
-                <View style={styles.row}>
-                    <View style={styles.halfInput}>
-                        <StyledInput
-                            value={notifyBeforeValue}
-                            onChangeText={setNotifyBeforeValue}
-                            placeholder="Notificar antes"
-                            keyboardType="numeric"
-                            placeholderTextColor={theme.colors.textSecondary}
-                        />
-                    </View>
-                    <View style={styles.halfInput}>
-                        <StyledInput
-                            value={notifyBeforeUnit}
-                            onChangeText={setNotifyBeforeUnit}
-                            placeholder="Unidade notif. (ex: day)"
-                            placeholderTextColor={theme.colors.textSecondary}
-                        />
-                    </View>
-                </View>
+                <View style={styles.form}>
+                    <StyledInput
+                        value={serviceName}
+                        onChangeText={setServiceName}
+                        placeholder="Nome do serviço (ex: Netflix)"
+                        placeholderTextColor={theme.colors.textSecondary}
+                    />
 
-                <StyledButton
-                    title="Salvar Assinatura"
-                    onPress={handleSubmit}
-                    isLoading={mutation.isPending}
-                />
+                    <StyledInput
+                        value={price}
+                        onChangeText={setPrice}
+                        placeholder="Preço (ex: 29.90)"
+                        keyboardType="decimal-pad"
+                        placeholderTextColor={theme.colors.textSecondary}
+                    />
+
+                    <StyledInput
+                        value={renewalDate}
+                        onChangeText={setRenewalDate}
+                        placeholder="Data de Renovação (AAAA-MM-DD)"
+                        placeholderTextColor={theme.colors.textSecondary}
+                    />
+
+                    <View style={styles.row}>
+                        <View style={styles.halfInput}>
+                            <StyledInput
+                                value={renewalPeriodValue}
+                                onChangeText={setRenewalPeriodValue}
+                                placeholder="Período"
+                                keyboardType="numeric"
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
+                        <View style={styles.halfInput}>
+                            <StyledInput
+                                value={renewalPeriodUnit}
+                                onChangeText={setRenewalPeriodUnit}
+                                placeholder="Unidade (ex: month)"
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.row}>
+                        <View style={styles.halfInput}>
+                            <StyledInput
+                                value={notifyBeforeValue}
+                                onChangeText={setNotifyBeforeValue}
+                                placeholder="Notificar antes"
+                                keyboardType="numeric"
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
+                        <View style={styles.halfInput}>
+                            <StyledInput
+                                value={notifyBeforeUnit}
+                                onChangeText={setNotifyBeforeUnit}
+                                placeholder="Unidade notif. (ex: day)"
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
+                    </View>
+
+                    <StyledButton
+                        title="Salvar Assinatura"
+                        onPress={handleSubmit}
+                        isLoading={mutation.isPending}
+                    />
+                </View>
             </View>
         </ScrollView>
     );
@@ -141,13 +143,19 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
-    content: {
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
         padding: theme.spacing.m,
+    },
+    contentWrapper: {
+        flex: 1,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: theme.spacing.l,
+        paddingHorizontal: theme.spacing.s,
     },
     title: {
         fontSize: theme.typography.headline.fontSize,
@@ -159,6 +167,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         borderRadius: theme.components.card.borderRadius,
         padding: theme.spacing.m,
+        marginHorizontal: theme.spacing.s,
     },
     row: {
         flexDirection: 'row',

@@ -1,5 +1,5 @@
 import { useAuth } from '../../src/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import api from '../../src/services/api';
 import { User } from '../../src/types';
@@ -12,8 +12,23 @@ export default function ProfileScreen() {
 
     const fetchUser = async (): Promise<User> => {
         const response = await api.get('/user');
-        return response.data;
+        return response.data.data; // O backend Laravel Sanctum retorna os dados dentro de 'data'
     };
+
+    // Mutation para logout
+    const logoutMutation = useMutation({
+        mutationFn: async () => {
+            const response = await api.post('/logout');
+            return response.data;
+        },
+        onSuccess: () => {
+            signOut(); // Limpa o token local após logout bem-sucedido
+        },
+        onError: (error: any) => {
+            console.error('Erro no logout:', error);
+            signOut(); // Mesmo em caso de erro, limpa o token local
+        }
+    });
 
     const { data: user, isLoading } = useQuery<User>({
         queryKey: ['user'],
@@ -21,7 +36,7 @@ export default function ProfileScreen() {
     });
 
     const handleLogout = async () => {
-        await signOut();
+        logoutMutation.mutate();
     };
 
     if (isLoading) {
@@ -33,37 +48,39 @@ export default function ProfileScreen() {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.profileHeader}>
-                <View style={styles.avatar}>
-                    <MaterialIcons name="person" size={48} color={theme.colors.primary} />
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+            <View style={styles.contentWrapper}>
+                <View style={styles.profileHeader}>
+                    <View style={styles.avatar}>
+                        <MaterialIcons name="person" size={48} color={theme.colors.primary} />
+                    </View>
+                    <Text style={styles.userName}>{user?.name || 'Usuário'}</Text>
+                    <Text style={styles.userEmail}>{user?.email || ''}</Text>
                 </View>
-                <Text style={styles.userName}>{user?.name || 'Usuário'}</Text>
-                <Text style={styles.userEmail}>{user?.email || ''}</Text>
-            </View>
 
-            <View style={styles.section}>
-                <View style={styles.optionItem}>
-                    <MaterialIcons name="notifications" size={24} color={theme.colors.text} />
-                    <Text style={styles.optionText}>Notificações</Text>
+                <View style={styles.section}>
+                    <View style={[styles.optionItem, styles.optionItemLast]}>
+                        <MaterialIcons name="notifications" size={24} color={theme.colors.text} />
+                        <Text style={styles.optionText}>Notificações</Text>
+                    </View>
+                    <View style={[styles.optionItem, styles.optionItemLast]}>
+                        <MaterialIcons name="settings" size={24} color={theme.colors.text} />
+                        <Text style={styles.optionText}>Configurações</Text>
+                    </View>
+                    <View style={[styles.optionItem, styles.optionItemLast]}>
+                        <MaterialIcons name="help" size={24} color={theme.colors.text} />
+                        <Text style={styles.optionText}>Ajuda</Text>
+                    </View>
                 </View>
-                <View style={styles.optionItem}>
-                    <MaterialIcons name="settings" size={24} color={theme.colors.text} />
-                    <Text style={styles.optionText}>Configurações</Text>
-                </View>
-                <View style={styles.optionItem}>
-                    <MaterialIcons name="help" size={24} color={theme.colors.text} />
-                    <Text style={styles.optionText}>Ajuda</Text>
-                </View>
-            </View>
 
-            <View style={styles.logoutSection}>
-                <StyledButton
-                    title="Sair"
-                    onPress={handleLogout}
-                    isLoading={false}
-                    style={{ backgroundColor: theme.colors.danger }}
-                />
+                <View style={styles.logoutSection}>
+                    <StyledButton
+                        title="Sair"
+                        onPress={handleLogout}
+                        isLoading={logoutMutation.isPending}
+                        style={{ backgroundColor: theme.colors.danger }}
+                    />
+                </View>
             </View>
         </ScrollView>
     );
@@ -74,6 +91,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    contentWrapper: {
+        flex: 1,
+    },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -83,7 +107,8 @@ const styles = StyleSheet.create({
     profileHeader: {
         backgroundColor: theme.colors.surface,
         alignItems: 'center',
-        padding: theme.spacing.l,
+        paddingHorizontal: theme.spacing.l,
+        paddingVertical: theme.spacing.l,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
     },
@@ -108,7 +133,8 @@ const styles = StyleSheet.create({
     },
     section: {
         backgroundColor: theme.colors.surface,
-        margin: theme.spacing.m,
+        marginHorizontal: theme.spacing.m,
+        marginBottom: theme.spacing.m,
         borderRadius: theme.components.card.borderRadius,
         padding: theme.spacing.m,
     },
@@ -128,7 +154,8 @@ const styles = StyleSheet.create({
         marginLeft: theme.spacing.m,
     },
     logoutSection: {
-        margin: theme.spacing.m,
+        marginHorizontal: theme.spacing.m,
         marginTop: 0,
+        marginBottom: theme.spacing.m,
     },
 });

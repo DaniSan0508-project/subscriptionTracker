@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import FloatingActionButton from '../../src/components/FloatingActionButton';
 import SubscriptionCard from '../../src/components/SubscriptionCard';
 import api from '../../src/services/api';
@@ -66,63 +66,65 @@ export default function DashboardScreen() {
     const renderItem = ({ item }: { item: Subscription }) => (
         <SubscriptionCard
             subscription={item}
-            onPress={() => router.push(`/subscription/${item.id}`)}
+            onPress={() => router.push(`/(tabs)/subscription/${item.id}`)}
         />
     );
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Minhas Assinaturas</Text>
-                <View style={styles.iconContainer}>
-                    <MaterialIcons name="receipt-long" size={24} color={theme.colors.primary} />
-                </View>
-            </View>
-
-            <View style={styles.summaryCards}>
-                <View style={[styles.summaryCard, styles.totalCard]}>
-                    <View style={styles.summaryContent}>
-                        <Text style={styles.summaryLabel}>Gasto Mensal</Text>
-                        <Text style={styles.summaryValue}>
-                            R$ {totalMonthly.toFixed(2).replace('.', ',')}
-                        </Text>
-                    </View>
-                    <View style={styles.iconBackground}>
-                        <MaterialIcons name="payments" size={24} color={theme.colors.primary} />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Minhas Assinaturas</Text>
+                    <View style={styles.iconContainer}>
+                        <MaterialIcons name="receipt-long" size={24} color={theme.colors.primary} />
                     </View>
                 </View>
 
-                <View style={[styles.summaryCard, styles.expiringCard]}>
-                    <View style={styles.summaryContent}>
-                        <Text style={styles.summaryLabel}>Próximas</Text>
-                        <Text style={styles.summaryValue}>{expiringSoonCount}</Text>
+                <View style={styles.summaryCards}>
+                    <View style={[styles.summaryCard, styles.totalCard]}>
+                        <View style={styles.summaryContent}>
+                            <Text style={styles.summaryLabel}>Gasto Mensal</Text>
+                            <Text style={styles.summaryValue}>
+                                R$ {totalMonthly.toFixed(2).replace('.', ',')}
+                            </Text>
+                        </View>
+                        <View style={styles.iconBackground}>
+                            <MaterialIcons name="payments" size={24} color={theme.colors.primary} />
+                        </View>
                     </View>
-                    <View style={[styles.iconBackground, styles.warningIcon]}>
-                        <MaterialIcons name="notifications" size={24} color={theme.colors.warning} />
+
+                    <View style={[styles.summaryCard, styles.expiringCard]}>
+                        <View style={styles.summaryContent}>
+                            <Text style={styles.summaryLabel}>Próximas</Text>
+                            <Text style={styles.summaryValue}>{expiringSoonCount}</Text>
+                        </View>
+                        <View style={[styles.iconBackground, styles.warningIcon]}>
+                            <MaterialIcons name="notifications" size={24} color={theme.colors.warning} />
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            <View style={styles.listContainer}>
-                <FlatList
-                    data={subscriptions}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderItem}
-                    onRefresh={refetch}
-                    refreshing={isLoading}
-                    style={styles.list}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={isLoading}
-                            onRefresh={refetch}
-                            colors={[theme.colors.primary]}
-                        />
-                    }
-                    ListHeaderComponent={
-                        <Text style={styles.sectionTitle}>Todas as Assinaturas</Text>
-                    }
-                />
-            </View>
+                <View style={styles.listContainer}>
+                    <FlatList
+                        data={subscriptions}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderItem}
+                        onRefresh={refetch}
+                        refreshing={isLoading}
+                        style={styles.list}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={isLoading}
+                                onRefresh={refetch}
+                                colors={[theme.colors.primary]}
+                            />
+                        }
+                        ListHeaderComponent={
+                            <Text style={styles.sectionTitle}>Todas as Assinaturas</Text>
+                        }
+                    />
+                </View>
+            </ScrollView>
 
             <FloatingActionButton onPress={() => router.push('/(tabs)/addSubscription')} />
         </View>
@@ -134,6 +136,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
+    scrollContent: {
+        paddingBottom: 100, // Espaço para o botão flutuante
+    },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -144,8 +149,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: theme.spacing.m,
+        paddingHorizontal: theme.spacing.m,
         paddingTop: 50, // Espaçamento extra para o status bar
+        paddingBottom: theme.spacing.m,
     },
     title: {
         fontSize: theme.typography.headline.fontSize,
@@ -209,6 +215,7 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         flex: 1,
+        paddingHorizontal: theme.spacing.m,
     },
     list: {
         flex: 1,

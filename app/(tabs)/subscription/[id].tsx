@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
@@ -11,6 +11,7 @@ import StyledButton from '../../../src/components/StyledButton';
 export default function SubscriptionDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const fetchSubscription = async (): Promise<Subscription> => {
     const response = await api.get(`/subscriptions/${id}`);
@@ -29,6 +30,22 @@ export default function SubscriptionDetailScreen() {
     enabled: !!id
   });
 
+  // Mutation para deletar a assinatura
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.delete(`/subscriptions/${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      Alert.alert('Sucesso', 'Assinatura deletada com sucesso!');
+      router.back();
+    },
+    onError: (error: any) => {
+      Alert.alert('Erro', error.response?.data?.message || 'Erro ao deletar assinatura');
+    }
+  });
+
   // Calcular dias até o vencimento
   const daysUntilRenewal = useMemo(() => {
     if (!subscription) return 0;
@@ -40,7 +57,7 @@ export default function SubscriptionDetailScreen() {
   }, [subscription]);
 
   useEffect(() => {
-    if (isError) {
+    if (isError && error) {
       Alert.alert('Erro', error.message);
     }
   }, [isError, error]);
@@ -83,72 +100,89 @@ export default function SubscriptionDetailScreen() {
     year: 'numeric'
   });
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Confirmar exclusão',
+      'Tem certeza que deseja deletar esta assinatura? Esta ação não pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Deletar', 
+          style: 'destructive',
+          onPress: () => deleteMutation.mutate()
+        }
+      ]
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
-          <Text style={[styles.statusText, { color: statusColor }]}>{statusText}</Text>
-        </View>
-        <Text style={styles.serviceName}>{subscription.service.name}</Text>
-        <Text style={styles.price}>R$ {parseFloat(subscription.price).toFixed(2)}</Text>
-      </View>
-
-      <View style={styles.detailsContainer}>
-        <View style={styles.detailItem}>
-          <View style={styles.detailIcon}>
-            <MaterialIcons name="event" size={20} color={theme.colors.text} />
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.contentWrapper}>
+        <View style={styles.header}>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>{statusText}</Text>
           </View>
-          <View style={styles.detailContent}>
-            <Text style={styles.detailLabel}>Próximo Vencimento</Text>
-            <Text style={styles.detailValue}>{formattedDate}</Text>
-          </View>
+          <Text style={styles.serviceName}>{subscription.service.name}</Text>
+          <Text style={styles.price}>R$ {parseFloat(subscription.price).toFixed(2)}</Text>
         </View>
 
-        <View style={styles.detailItem}>
-          <View style={styles.detailIcon}>
-            <MaterialIcons name="schedule" size={20} color={theme.colors.text} />
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailItem}>
+            <View style={styles.detailIcon}>
+              <MaterialIcons name="event" size={20} color={theme.colors.text} />
+            </View>
+            <View style={styles.detailContent}>
+              <Text style={styles.detailLabel}>Próximo Vencimento</Text>
+              <Text style={styles.detailValue}>{formattedDate}</Text>
+            </View>
           </View>
-          <View style={styles.detailContent}>
-            <Text style={styles.detailLabel}>Dias até o vencimento</Text>
-            <Text style={[styles.detailValue, { color: statusColor }]}>
-              {daysUntilRenewal > 0 ? `${daysUntilRenewal} dias` : daysUntilRenewal === 0 ? 'Hoje' : 'Vencido'}
-            </Text>
+
+          <View style={styles.detailItem}>
+            <View style={styles.detailIcon}>
+              <MaterialIcons name="schedule" size={20} color={theme.colors.text} />
+            </View>
+            <View style={styles.detailContent}>
+              <Text style={styles.detailLabel}>Dias até o vencimento</Text>
+              <Text style={[styles.detailValue, { color: statusColor }]}>
+                {daysUntilRenewal > 0 ? `${daysUntilRenewal} dias` : daysUntilRenewal === 0 ? 'Hoje' : 'Vencido'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.detailItem}>
+            <View style={styles.detailIcon}>
+              <MaterialIcons name="repeat" size={20} color={theme.colors.text} />
+            </View>
+            <View style={styles.detailContent}>
+              <Text style={styles.detailLabel}>Frequência de Cobrança</Text>
+              <Text style={styles.detailValue}>Mensal</Text>
+            </View>
+          </View>
+
+          <View style={styles.detailItem}>
+            <View style={styles.detailIcon}>
+              <MaterialIcons name="notifications" size={20} color={theme.colors.text} />
+            </View>
+            <View style={styles.detailContent}>
+              <Text style={styles.detailLabel}>Notificação</Text>
+              <Text style={styles.detailValue}>7 dias antes</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.detailItem}>
-          <View style={styles.detailIcon}>
-            <MaterialIcons name="repeat" size={20} color={theme.colors.text} />
-          </View>
-          <View style={styles.detailContent}>
-            <Text style={styles.detailLabel}>Frequência de Cobrança</Text>
-            <Text style={styles.detailValue}>Mensal</Text>
-          </View>
+        <View style={styles.actionsContainer}>
+          <StyledButton
+            title="Editar Assinatura"
+            onPress={() => router.push(`/(tabs)/editSubscription?id=${subscription.id}`)}
+            isLoading={false}
+          />
+          <StyledButton
+            title="Deletar Assinatura"
+            onPress={handleDelete}
+            isLoading={deleteMutation.isPending}
+            style={{ backgroundColor: theme.colors.danger }}
+          />
         </View>
-
-        <View style={styles.detailItem}>
-          <View style={styles.detailIcon}>
-            <MaterialIcons name="notifications" size={20} color={theme.colors.text} />
-          </View>
-          <View style={styles.detailContent}>
-            <Text style={styles.detailLabel}>Notificação</Text>
-            <Text style={styles.detailValue}>7 dias antes</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.actionsContainer}>
-        <StyledButton
-          title="Editar Assinatura"
-          onPress={() => router.push(`/(tabs)/editSubscription?id=${subscription.id}`)}
-          isLoading={false}
-        />
-        <StyledButton
-          title="Cancelar Assinatura"
-          onPress={() => Alert.alert('Cancelar Assinatura', 'Tem certeza que deseja cancelar esta assinatura?')}
-          isLoading={false}
-          style={{ backgroundColor: theme.colors.danger }}
-        />
       </View>
     </ScrollView>
   );
@@ -159,6 +193,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  contentWrapper: {
+    flex: 1,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -167,7 +208,8 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: theme.colors.surface,
-    padding: theme.spacing.l,
+    paddingHorizontal: theme.spacing.l,
+    paddingVertical: theme.spacing.l,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
@@ -195,7 +237,8 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   detailsContainer: {
-    padding: theme.spacing.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.s,
   },
   detailItem: {
     flexDirection: 'row',
@@ -227,6 +270,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   actionsContainer: {
-    padding: theme.spacing.m,
+    paddingHorizontal: theme.spacing.m,
+    paddingVertical: theme.spacing.m,
   },
 });
